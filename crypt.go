@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	// "github.com/daviddengcn/go-colortext"
+	"math/big"
 	"os"
 	"text/tabwriter"
 	// "io/ioutil"
@@ -11,9 +11,11 @@ import (
 	// "github.com/____/____"
 )
 
+var A = flag.Int("A", 3, "Alice's secret")
+var B = flag.Int("B", 6, "Bob's secret")
 var b = flag.Int("b", 2, "base")
 var e = flag.Int("e", 3, "exponent")
-var m = flag.Int("m", 7, "mod")
+var m = flag.Int("m", 11, "mod")
 
 var w = new(tabwriter.Writer)
 
@@ -75,9 +77,25 @@ func modSeries(base int, exponent int, mod int) {
 	w.Flush()
 }
 
+func aliceAndBob(aliceSecret int64, bobSecret int64, base int64, mod int64) {
+	alpha := new(big.Int).Exp(big.NewInt(base), big.NewInt(aliceSecret), big.NewInt(mod))
+	fmt.Printf("alpha: %v\n", alpha)
+
+	beta := new(big.Int).Exp(big.NewInt(base), big.NewInt(bobSecret), big.NewInt(mod))
+	fmt.Printf("beta: %v\n", beta)
+
+	aliceKey := new(big.Int).Exp(beta, big.NewInt(aliceSecret), big.NewInt(mod))
+	fmt.Printf("aliceKey: %v\n", aliceKey)
+
+	bobKey := new(big.Int).Exp(alpha, big.NewInt(bobSecret), big.NewInt(mod))
+	fmt.Printf("bobKey: %v\n", bobKey)
+}
+
 func main() {
 	fmt.Println("crypt says hello!\n")
 	flag.Parse()
 
-	modSeries(*b, *e, *m)
+	// modSeries(*b, *e, *m)
+	aliceAndBob(int64(*A), int64(*B), int64(*b), int64(*m))
+
 }
