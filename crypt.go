@@ -25,17 +25,17 @@ var w = new(tabwriter.Writer)
 
 func modSeries(base int, exponent int, mod int) {
 	// Format right-aligned in space-separated columns of minimal width 5
-	// and at least one blank of padding (so wider column entries do not
+	// and at least three blanks of padding (so wider column entries do not
 	// touch each other).
 	w.Init(os.Stdout, 5, 0, 3, ' ', tabwriter.AlignRight)
 	fmt.Fprintf(w, "Equation\tResult\tMod %v\t\n", mod)
 	fmt.Fprintf(w, "--------\t------\t------\t\n")
 
 	value := base
-	for i := 0; i <= exponent; i++ {
-		value *= base
+	for i := 1; i <= exponent; i++ {
 		modVal := value % mod
 		fmt.Fprintf(w, "%v^%v\t%v\t%v\t\n", base, i, value, modVal)
+		value *= base
 	}
 }
 
