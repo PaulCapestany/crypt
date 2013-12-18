@@ -11,11 +11,11 @@ import (
 	// "github.com/____/____"
 )
 
-var A = flag.Int("A", 3, "Alice's secret")
-var B = flag.Int("B", 6, "Bob's secret")
-var b = flag.Int("b", 2, "base")
-var e = flag.Int("e", 3, "exponent")
-var m = flag.Int("m", 11, "mod")
+var A = flag.String("A", "3", "Alice's secret")
+var B = flag.String("B", "6", "Bob's secret")
+var Y = flag.String("Y", "2", "base")
+var e = flag.String("e", "3", "exponent")
+var P = flag.String("P", "11", "mod P")
 
 var w = new(tabwriter.Writer)
 
@@ -77,25 +77,53 @@ func modSeries(base int, exponent int, mod int) {
 	w.Flush()
 }
 
-func aliceAndBob(aliceSecret int64, bobSecret int64, base int64, mod int64) {
-	alpha := new(big.Int).Exp(big.NewInt(base), big.NewInt(aliceSecret), big.NewInt(mod))
-	fmt.Printf("alpha: %v\n", alpha)
+func aliceAndBob(aliceSecret *big.Int, bobSecret *big.Int, Y *big.Int, P *big.Int) {
+	fmt.Println(fgCyan + bright + underscore + "Paul's 1st Crypto" + reset)
+	fmt.Println(fgCyan + "  ↳ Y^x(mod P)" + reset)
+	fmt.Printf(fgGreen+"(Public)\n  Y = %v\n  P = %v\n", Y, P)
+	fmt.Printf(fgRed+"(Private)\n  A = %v\n  B = %v\n", aliceSecret, bobSecret)
 
-	beta := new(big.Int).Exp(big.NewInt(base), big.NewInt(bobSecret), big.NewInt(mod))
-	fmt.Printf("beta: %v\n", beta)
+	// 1234567890123456789 → limit of 19 digits for normal int64
+	// 100100100100100100100
+	// 101101101101101101101
+	//
+	// Y must be smaller than P
 
-	aliceKey := new(big.Int).Exp(beta, big.NewInt(aliceSecret), big.NewInt(mod))
-	fmt.Printf("aliceKey: %v\n", aliceKey)
+	fmt.Printf(fgYellow + "(Results)\n")
+	alpha := new(big.Int).Exp(Y, aliceSecret, P)
+	fmt.Printf("  α = %v\n", alpha)
 
-	bobKey := new(big.Int).Exp(alpha, big.NewInt(bobSecret), big.NewInt(mod))
-	fmt.Printf("bobKey: %v\n", bobKey)
+	beta := new(big.Int).Exp(Y, bobSecret, P)
+	fmt.Printf("  β = %v\n", beta)
+
+	aliceKey := new(big.Int).Exp(beta, aliceSecret, P)
+	fmt.Printf(bright+"KEY = %v\n", aliceKey)
+
+	// bobKey := new(big.Int).Exp(alpha, bobSecret, P)
+	// fmt.Printf("B Key: %v\n", bobKey)
+}
+
+func fromBase10(base10 string) *big.Int {
+	i := new(big.Int)
+	i.SetString(base10, 10)
+	return i
+}
+
+func tryRSA() {
+	b_A := fromBase10("3490529510847650949147849619903898133417764638493387843990820577")
+	b_B := fromBase10("32769132993266709549961988190834461413177642967992942539798288533")
+	b_C := new(big.Int).Mul(b_A, b_B)
+	fmt.Printf("b_A = %v\nb_B = %v\nb_C = %v\n", b_A, b_B, b_C)
 }
 
 func main() {
-	fmt.Println("crypt says hello!\n")
+	// fmt.Println("crypt says hello!\n")
 	flag.Parse()
-
+	zA := fromBase10(*A)
+	zB := fromBase10(*B)
+	zY := fromBase10(*Y)
+	zP := fromBase10(*P)
 	// modSeries(*b, *e, *m)
-	aliceAndBob(int64(*A), int64(*B), int64(*b), int64(*m))
-
+	aliceAndBob(zA, zB, zY, zP)
+	// tryRSA()
 }
