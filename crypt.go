@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 )
 
+// Diffie-Hellman Key Exchange flags
 var A = flag.String("A", "3", "Alice's secret")
 var B = flag.String("B", "6", "Bob's secret")
 var Y = flag.String("Y", "2", "base")
@@ -69,21 +70,27 @@ func modSeries(base int, exponent int, mod int) {
 	w.Flush()
 }
 
-func diffieHellmanKey(aliceSecret *big.Int, bobSecret *big.Int, Y *big.Int, P *big.Int) {
+func diffieHellmanKey() {
+	// Diffie-Hellman flags
+	Y := fromBase10(*Y)
+	P := fromBase10(*P)
+	A := fromBase10(*A)
+	B := fromBase10(*B)
+
 	fmt.Println(fgCyan + bright + underscore + "Paul's 1st Crypto" + reset)
 	fmt.Println(fgCyan + "  ↳ Y^x(mod P)" + reset)
 	fmt.Printf(fgGreen+"(Public)\n  Y = %v\n  P = %v\n", Y, P)
-	fmt.Printf(fgRed+"(Private)\n  A = %v\n  B = %v\n", aliceSecret, bobSecret)
+	fmt.Printf(fgRed+"(Private)\n  A = %v\n  B = %v\n", A, B)
 
 	// Y must be smaller than P
 	fmt.Printf(fgYellow + "(Results)\n")
-	alpha := new(big.Int).Exp(Y, aliceSecret, P)
+	alpha := new(big.Int).Exp(Y, A, P)
 	fmt.Printf("  α = %v\n", alpha)
 
-	beta := new(big.Int).Exp(Y, bobSecret, P)
+	beta := new(big.Int).Exp(Y, B, P)
 	fmt.Printf("  β = %v\n", beta)
 
-	aliceKey := new(big.Int).Exp(beta, aliceSecret, P)
+	aliceKey := new(big.Int).Exp(beta, A, P)
 	fmt.Printf(bright+"KEY = %v\n", aliceKey)
 }
 
@@ -94,15 +101,18 @@ func fromBase10(base10 string) *big.Int {
 }
 
 func tryRSA() {
-	// Alice must pick two prime numbers (these are SECRET)
+	// RSA flags
 	p := fromBase10(*p)
-	fmt.Printf("p = %v\n", p)
 	q := fromBase10(*q)
+	e := fromBase10(*e)
+	M := fromBase10(*M)
+
+	// Alice must pick two prime numbers (these are SECRET)
+	fmt.Printf("p = %v\n", p)
 	fmt.Printf("q = %v\n", q)
 
 	// Alice must pick a number for 'e'
 	// 'e' should be 1 < e < Φ
-	e := fromBase10(*e)
 	fmt.Printf("e = %v\n", e)
 
 	// 'e', along with 'N', are Alice's public key
@@ -116,7 +126,6 @@ func tryRSA() {
 
 	// To encrypt a message, the message must first be converted into a number, 'M'
 	// Text is changed into ASCII binary digits as 'M' which then gives ciphertext 'C'
-	M := fromBase10(*M)
 	fmt.Printf("M = %v\n", M)
 	C := new(big.Int).Exp(M, e, N)
 	fmt.Printf("C = %v\n", C)
@@ -131,9 +140,8 @@ func tryRSA() {
 }
 
 func main() {
-	// fmt.Println("crypt says hello!\n")
 	flag.Parse()
-	// modSeries(*b, *e, *m)
-	// diffieHellmanKey(zA, zB, zY, zP)
-	tryRSA()
+
+	diffieHellmanKey()
+	// tryRSA()
 }
