@@ -14,7 +14,8 @@ import (
 var A = flag.String("A", "3", "Alice's secret")
 var B = flag.String("B", "6", "Bob's secret")
 var Y = flag.String("Y", "2", "base")
-var e = flag.String("e", "3", "exponent")
+
+// var e = flag.String("e", "3", "exponent")
 var P = flag.String("P", "11", "mod P")
 
 var w = new(tabwriter.Writer)
@@ -110,20 +111,117 @@ func fromBase10(base10 string) *big.Int {
 }
 
 func tryRSA() {
-	b_A := fromBase10("3490529510847650949147849619903898133417764638493387843990820577")
-	b_B := fromBase10("32769132993266709549961988190834461413177642967992942539798288533")
-	b_C := new(big.Int).Mul(b_A, b_B)
-	fmt.Printf("b_A = %v\nb_B = %v\nb_C = %v\n", b_A, b_B, b_C)
+	// WORKS
+	// p_string := "47"
+	// q_string := "59"
+	// e_string := "17"
+	// M_string := "89"
+
+	// WORKS
+	// p_string := "53"
+	// q_string := "59"
+	// e_string := "3"
+	// M_string := "89"
+
+	// WORKS
+	// p_string := "17"
+	// q_string := "11"
+	// e_string := "7"
+	// M_string := "88"
+
+	p_string := "61"
+	q_string := "53"
+	e_string := "17"
+	M_string := "65"
+
+	// Alice must pick two prime numbers (these are SECRET)
+	p := fromBase10(p_string)
+	fmt.Printf("p = %v\n", p)
+	q := fromBase10(q_string)
+	fmt.Printf("q = %v\n", q)
+
+	// Alice must pick a number for 'e'
+	// 'e' should be 1 < e < Φ
+	e := fromBase10(e_string)
+	fmt.Printf("e = %v\n", e)
+
+	// 'e', along with 'N', are Alice's public key
+	N := new(big.Int).Mul(p, q)
+	fmt.Printf("N = %v\n", N)
+
+	// Calculate the Φ with: (p-1)*(q-1)
+	var bigOne = big.NewInt(1)
+	Φ := new(big.Int).Mul(new(big.Int).Sub(p, bigOne), new(big.Int).Sub(q, bigOne))
+	fmt.Printf("Φ = %v\n", Φ)
+
+	// To encrypt a message, the message must first be converted into a number, 'M'
+	// Text is changed into ASCII binary digits as 'M' which then gives ciphertext 'C'
+	M := fromBase10(M_string)
+	fmt.Printf("M = %v\n", M)
+	C := new(big.Int).Exp(M, e, N)
+	fmt.Printf("C = %v\n", C)
+
+	// Calculate decryption key, 'd'
+	d := new(big.Int).ModInverse(e, Φ)
+
+	// temp := new(big.Int).Add(Φ, bigOne)
+	// d := new(big.Int).Div(temp, e)
+	fmt.Printf("d = %v\n", d)
+
+	// a := big.NewInt(17)
+	// m := big.NewInt(43)
+	// k := new(big.Int).ModInverse(a, m)
+	// fmt.Println(k)
+
+	// x := new(big.Int)
+	// y := new(big.Int)
+	// g := new(big.Int).GCD(x, y, fromBase10("161"), fromBase10("7"))
+	// fmt.Printf("g = %v\n", g)
+
+}
+
+func EuclidExtended(m, n int) (a, b, d int) {
+	//Check for invalid input
+	if m < 0 || n < 0 {
+		return 0, 0, 0
+	}
+
+	//Initialize all variables
+	a, b, d = 0, 1, n
+	aNot, bNot, c := 1, 0, m
+	var r, q int
+
+	for {
+		//Remainder zero?
+		r = c % d
+		if r == 0 {
+			break
+		}
+		q = c / d
+
+		//Swap values
+		c, d = d, r
+		temp := aNot
+		aNot, a = a, temp-q*a
+		temp = bNot
+		bNot, b = b, temp-q*b
+	}
+	return
 }
 
 func main() {
 	// fmt.Println("crypt says hello!\n")
 	flag.Parse()
-	zA := fromBase10(*A)
-	zB := fromBase10(*B)
-	zY := fromBase10(*Y)
-	zP := fromBase10(*P)
+	// zA := fromBase10(*A)
+	// zB := fromBase10(*B)
+	// zY := fromBase10(*Y)
+	// zP := fromBase10(*P)
 	// modSeries(*b, *e, *m)
-	aliceAndBob(zA, zB, zY, zP)
-	// tryRSA()
+	// aliceAndBob(zA, zB, zY, zP)
+	tryRSA()
+
+	// m := 50
+	// n := 100
+	// a, b, d := EuclidExtended(m, n)
+	// fmt.Printf("m = %v\nn = %v\na = %v\nb = %v\nd = %v\n", m, n, a, b, d)
 }
