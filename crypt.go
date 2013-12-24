@@ -125,6 +125,7 @@ func tryRSA() {
 	fmt.Printf("Φ = %v\n", Φ)
 
 	// To encrypt a message, the message must first be converted into a number, 'M'
+	// 'M' *must* be smaller than 'N'
 	// Text is changed into ASCII binary digits as 'M' which then gives ciphertext 'C'
 	fmt.Printf("M = %v\n", M)
 	C := new(big.Int).Exp(M, e, N)
@@ -142,6 +143,6 @@ func tryRSA() {
 func main() {
 	flag.Parse()
 
-	diffieHellmanKey()
-	// tryRSA()
+	// diffieHellmanKey()
+	tryRSA()
 }
